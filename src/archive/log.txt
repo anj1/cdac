@@ -1,0 +1,28 @@
+Problems with original method:
+ - 
+
+Problems with canny method:
+ - Too many spurious lines
+ - Cell edges often have numerous layers (the algorithm can't know enough to isolate one of them)
+ - Strong edges that are not on edge (such as edge-touching nucleus) often mess up results
+
+Problems with pure edge detection:
+HK:
+ - Highly inaccurate
+
+LK:
+ - Accurate, but not good for large differences
+
+PyrLK:
+ - Too slow
+ - Since points are considered individually, makes lots of local errors
+
+PyrLK with predefined path:
+ - Errors accumulate, causing large curve errors over time
+ - This can be patched by rejecting large deformations
+
+<Above> & Kalman filter:
+ - 
+
+Problems with Active contour method:
+ -

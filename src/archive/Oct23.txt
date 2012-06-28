@@ -1,0 +1,6 @@
+Recent modifications:
+
+I wasn't satisfied with my previous energy penalty functions, so I changed them to a very simple threshold penalty: If the path doesn't deform, there is no penalty. If the path segment deforms at all, we incur a penalty. This penalty is the same regardless of the amount of deformation (tdot_subtract_energy_edge2). This is the *only* bias in the algorithm, and different penalty values can be tried to remove this bias as much as possible.
+
+Also, when preparing to simplify the path at the beginning of each iteration, previously, vertices that formed acute angles were sometimes removed. I didn't want this to happen, so I added a safeguard to the path simplification algorithm where only path segments that form obtuse angles will get truncated (path_simplify_smart). The relevant angle threshold can be set manually (ANGLE_THRESHOLD).
+

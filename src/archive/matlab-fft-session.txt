@@ -1,0 +1,45 @@
+octave:1> a = load("extr.dat")
+octave:2> size(a)
+ans =
+
+   10   81
+
+octave:3> b = fft(a);
+octave:4> size(b)
+ans =
+
+   10   81
+
+octave:5> b = fft(a(1,:));
+octave:6> size(b)
+ans =
+
+    1   81
+
+octave:7> plot(1:81,b)
+octave:8> plot(1:81,abs(b))
+octave:9> plot(1:81,angle(b))
+octave:10> plot(1:81,angle(b))
+octave:11> plot(1:81,abs(b),1:81,angle(b))
+octave:12> plot(1:81,abs(b),1:81,angle(b))
+octave:13> plot(1:81,abs(b),1:81,angle(b))
+octave:14> b(1,;) = fft(a(1,:));
+parse error:
+
+  syntax error
+
+>>> b(1,;) = fft(a(1,:));
+        ^
+
+octave:14> b(1,:) = fft(a(1,:));
+octave:15> b(2,:) = fft(a(2,:));
+octave:16> b(3,:) = fft(a(3,:));
+octave:17> b(4,:) = fft(a(4,:));
+octave:18> b(5,:) = fft(a(5,:));
+octave:19> plot(1:81,abs(sum(b)),1:81,angle(sum(b)))
+octave:20> plot(1:81,abs(sum(b))/5.0,1:81,angle(sum(b)))
+octave:21> b(6,:) = fft(a(6,:));
+octave:22> b(7,:) = fft(a(7,:));
+octave:23> b(8,:) = fft(a(8,:));
+octave:24> b(9,:) = fft(a(9,:));
+octave:25> plot(1:81,abs(sum(b))/9.0,1:81,angle(sum(b)))

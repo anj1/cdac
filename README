@@ -1,0 +1,60 @@
+This is ROBIE: Robust OBject Inference Environment
+
+It is a machine vision utility that is designed to track the outlines of cells in time-lapse microscope images under conditions of low contrast, high noise, and slow frame rate (i.e. highly unoptimal conditions).
+
+The details of the algorithm were outlined in my paper, "", sent to PLoS ONE for review. Using the code in this package it should be possible to reproduce the results seen in that paper.
+
+----------------------------- Dependencies -----------------------------
+
+First, some notes on compiling. Before compiling, you will need to make sure you have the following libraries installed:
+
+libxml: http://xmlsoft.org/
+libavl: http://www.stanford.edu/~blp/avl/
+libics: http://libics.sourceforge.net/
+
+These libraries are open-source and can be downloaded from their respective websites, compiled, and installed. If your distribution has a package manager, however, it is best to first check if they are available there. Note that LibICS was not part of the standard package repositories of most GNU/Linux distributions at the time of this release.
+
+In addition to the standard (binary) packages, you will also need the development (header) packages.
+
+If you need the image export functionality, you should also have the NetPBM package installed: http://netpbm.sourceforge.net/
+
+------------------------- Program Descriptions -------------------------
+
+This program is organized as follows.
+
+The package is composed of several programs and several modules which are shared across programs. The programs are:
+
+	robie
+	robie-present
+	extract2
+	cellcmp2
+	textextr
+	cellrend2.sh
+	svgtotext
+	doall.sh
+	
+'robie' is the main program; it accepts as input 1. a series of images (either as separate PGM files or a single ICS file) 2. initial outline for the cells we want to track 3. a kappa value, and outputs either a series of SVG images of the cell outlines or a series of text files describing the outline (in native format).
+
+To use the program, first find the outline(s) of the desired cells in the data. The program accepts outlines in SVG format, and thus any SVG editor may be used. A good SVG editor (and the one that was used in this work) is the freely-available Inkscape program. Note that for the program to accept the outline, all nodes in the path *must* be corner (smooth or bezier nodes not accepted). The ID of the paths can be used to distinguish the cells; the program preserves the IDs when producing SVG output. To set the ID of the path in inkscape, right-click the path and select "Object Properties".
+
+'robie-present' is a utility program used to generate the figures seen in the paper. It takes the output of robie (text files + input images) and clips them to a specified rectangle and tiles them together in a single image.
+
+'extract2' is a utility program used to extract the individual images from an ICS file. This comes in handy when preparing images for the paper, as robie-present is not capable of reading ICS files. This program has many advanced features; however, none of them were used in the preparation of the paper. For the preparation of the paper, the images were extracted as raw 16-bit pgms.
+
+'textextr' extracts (x,y) coordinate data from the internal format files.
+
+'cellcmp2' is a utility for comparing the outlines of cells produced using various different methods, using the Hausdorff metric. This utility was used to generate the data seen in the distance comparison plots.
+
+'cellrend2.sh' is a script for creating artificial 'microscope' images from outline data. Requires the NetPBM package to work.
+
+'svgtotext' is a small utility for converting the outlines in SVG images to the internal format used in the program. This is useful for preparing data for visualization and comparing outlines.
+
+'doall.sh' is an automated script for going through the procedure of extracting the microscope data, running robie on it, assembling the output into a collage, and comparing the generated outlines with that produced by hand.
+
+------------------------------ Disclaimer ------------------------------
+
+For those who want to complain about my coding style: This program may not be perfect, but it is the result of innumerable hours of coding, debugging, testing, tweaking, and fine-tuning. Further, I'm releasing it as open-source because it is required by PLoS for the publication of my paper. Unfortunately, I did not have enough time to 'clean it up' seeing as I'm on a tight PhD schedule.
+
+In short, if you want to whine about my code, you can $%&@ right off. This code was not written to please you, and I'm not interested in complaints. If you want to complain somewhere, do it on reddit or slashdot or whatever. I'm sure you'll find like-minded people on places like that.
+
+If, however, you have found a bug in my program, I'd like to hear about it. Keep in mind that every program has bugs, and this isn't TeX, so don't be too proud of yourself.

@@ -1,0 +1,15 @@
+For the smooth surface, a lot of stuff could be used. I've found that blank dvd's are plenty smooth for the job. If you want incredible smoothness, you could try old discarded hard-drive platters but that would probably be overkill as they are much smoother than the wavelength of light.
+
+
+Microscope data extraction tool with bells and whistles.
+by Alireza Nejati
+
+-h --help             output this help page.
+-f --frames [start:end]  Output specified frames. It is OK to leave end blank, will run to end of data, respectively. If option is not given, will output all  Example: -f 10:
+-o --output [name]  Output filenames as name_0001, name_0002, etc.
+-r --raw              output raw without downconversion to 8 bpp. Note that downconversion to 8 bpp is necessary for most image analysis software, hence it is the default behavior.
+-e --enhance [cutoff]           histogram-normalize images (has no effect if -r is passed, or input is 8bpp already). Default cutoff is 6 percent.
+-c --consistent [level]  Make histogram-normalization consistent i.e. prevent it from changing too much between frames. With level=0, option has no effect. With level=-1, histogram from first frame is used only. The higher level is, the slower the image contrast changes. Default value is 10.
+-p --png [level]     compress as PNG with compression [level]. Invokes pnmtopng.
+-j --jpeg [quality] compress as JPEG with specified compression quality. Invokes pnmtojpeg.
+-w --wiener [window] Perform wiener filter noise reduction on image series. Greatly increases image quality at expense of speed and possibly some accuracy. If [window] is not given, uses infinite impulse-response filter. This option has no effect if there is only one image in the series.

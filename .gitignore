@@ -1,0 +1,12 @@
+test
+doc
+run
+backup.lst
+src/.deps
+.deps
+config.h
+config.log
+config.status
+Makefile
+stamp-h1
+
