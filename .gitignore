@@ -10,4 +10,10 @@ config.log
 config.status
 Makefile
 stamp-h1
-
+*.o
+robie
+robiepresent
+extract2
+cellcmp2
+textextr
+svgtotext
