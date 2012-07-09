@@ -675,7 +675,7 @@ int main(int argc, char **argv)
 		if(i > startframe){	/* we have accumulated at least 2 frames and are ready for tracking */
 			/* we are at the desired frame sequence. */
 			printf("frame %i->%i\n", i-1,i);
-
+			
 			conv_pix_type_to_float(next,tmp1,maxval,dims[1]*dims[2]);
 			
 			/* the meat of the problem */

@@ -76,6 +76,10 @@ int get_pgm_header(FILE *f, size_t *pwidth, size_t *pheight, int *pmaxval)
 	
 	/* ignore magic number for now */
 	if(get_next_token(f, buf)) return 1;
+	if(strcmp("P5",buf)!=0){
+		printf("ERR:Image not binary 8-bit grayscale.\n");
+		return 7;
+	}
 	
 	if(get_next_token(f, buf)) return 2;
 	*pwidth  = atoi(buf);
@@ -114,6 +118,7 @@ int import_pgm_16bit
 	
 	if((*pmaxval)>65535){printf("ERR: pgm not <16 bit.\n");return 3;}
 	bpp = *pmaxval < 256 ? 1 : 2;
+	
 	size=(*pwidth)*(*pheight);
 	for(i=0;i<size;i++){
 		buf[i]=0;
