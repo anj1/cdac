@@ -205,7 +205,7 @@ void export_path_svg_start(FILE *f, int w, int h, char *imagename)
 }
 
 /* write curve data for a path */
-void export_path_svg(FILE *f, char *id, point2d32f *path, int n)
+void export_path_svg(FILE *f, char *id, point2d32f *path, int n, char *pathstyle)
 {
 	int i;
 	
@@ -214,7 +214,8 @@ void export_path_svg(FILE *f, char *id, point2d32f *path, int n)
 	fprintf(f,"z\" ");
 	
 	/* tell it how to render it */
-	fprintf(f,"stroke=\"#FFFFFF\" stroke-miterlimit=\"4\" stroke-dasharray=\"none\" stroke-width=\"3.0\" fill=\"none\"/>\n");
+	fprintf(f,"style=\"%s\" />", pathstyle);
+	fprintf(f,"
 }
 
 void export_path_svg_end(FILE *f)
@@ -232,6 +233,23 @@ void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char
 	char jpegname[256];
 	char jpegpath[256];
 	char xsvgpath[256];
+	
+	char pathstyle[2048];
+	
+	/* load path styles from file */
+	f = fopen("robie.conf","r");
+	if(!f){
+		/* if file not found, use default style */
+		strcpy(pathstyle,"stroke:#FF0000;stroke-miterlimit:4;stroke-dasharray:none;stroke-width:3.0;fill:none");
+	} else {
+		if((i=fseek(f,0,SEEK_END))>2048){
+			fprintf("ERROR: style string too long.");
+			return;
+		}
+		fseek(f,0,SEEK_SET);
+		fread(pathstyle,1,i,f);
+		pathstyle[i+1]=0;
+	}
 	
 	for(j=0;j<s->npath;j++){
 		sprintf(basename,SVG_OUT_FMT,s->path[j].opts.kappa,idx);
@@ -266,7 +284,7 @@ void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char
 		
 		/* export individual paths */
 		for(i=0;i<nspaths;i++){
-			export_path_svg(f, s[i].id, s[i].path[j].p, s[i].path[j].n);
+			export_path_svg(f, s[i].id, s[i].path[j].p, s[i].path[j].n, pathstyle);
 		}
 		
 		/* end */
@@ -508,6 +526,7 @@ int main(int argc, char **argv)
         printf("phase.txt is a file containing phases in robie format. It can be 'none'\n");
         printf("If the -t option is given, only outputs outlines as plain text files.\n");
         printf("If the -b option is given, outputs both.\n");
+        printf("Path style for svg is read from file robie.conf in current dir.\n");
         printf("examples:\n");
         printf("\tmo livecell.ics outline.svg 0 1000\n");
         printf("\tmo frame_%%04d.pgm 10.svg 10 20\n");
