@@ -224,7 +224,7 @@ void export_path_svg_end(FILE *f)
 
 /* export a cell outline structure in different ways; such as
  * bitmap superimposed on input image, and vector data */
-void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char *outdir, int idx)
+void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char *outdir, int idx, int export_jpeg)
 {
 	int i,j;
 	FILE *f;
@@ -252,8 +252,11 @@ void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char
 	
 	for(j=0;j<s->npath;j++){
 		sprintf(basename,SVG_OUT_FMT,s->path[j].opts.kappa,idx);
-		sprintf(jpegname,"%s.jpg",basename);
-		sprintf(jpegpath,"%s/%s.jpg",outdir,basename);
+		if(export_jpeg) {
+			sprintf(jpegname,"%s.jpg",basename);
+			sprintf(jpegpath,"%s/%s.jpg",outdir,basename);
+		}
+		
 		sprintf(xsvgpath,"%s/%s.svg",outdir,basename);
 
 #if 0
@@ -269,8 +272,7 @@ void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char
 			return;
 		}
 #endif
-	
-		export_to_compressed(jpegpath, buf, w, h);
+		if(export_jpeg) export_to_compressed(jpegpath, buf, w, h);
 		
 		f = fopen(xsvgpath,"w");
 		if(!f){
@@ -279,7 +281,11 @@ void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char
 		}
 		
 		/* start exporting svg; export style types and background image */
-		export_path_svg_start(f, w, h, jpegname);
+		if(export_jpeg){
+			export_path_svg_start(f, w, h, jpegname);
+		} else {
+			export_path_svg_start(f, w, h, NULL);
+		}
 		
 		/* export individual paths */
 		for(i=0;i<nspaths;i++){
@@ -518,13 +524,15 @@ int main(int argc, char **argv)
 	
 	int export_jpeg;
 	int export_text;
+	int export_svg;
 	
     if(argc < 7){
         printf("usage: robie <filename.ics | filename<format>.pgm> <outline.svg> startframe endframe kappa <output-dir> <phase.txt> [-t]\n");
         printf("\tIf filename is .pgm, we assume it's a series of pgm files, and the format string must be a printf-type string with a %%[]d inside it.\n");
         printf("phase.txt is a file containing phases in robie format. It can be 'none'\n");
         printf("If the -t option is given, only outputs outlines as plain text files.\n");
-        printf("If the -b option is given, outputs both.\n");
+        printf("If the -b option is given, outputs both svg and plain text.\n");
+        printf("If the -s option is given, outputs just svg with no jpeg.\n");
         printf("Path style for svg is read from file robie.conf in current dir.\n");
         printf("examples:\n");
         printf("\tmo livecell.ics outline.svg 0 1000\n");
@@ -622,15 +630,23 @@ int main(int argc, char **argv)
 	/* get whether we should output svg files with embedded .jpeg images
 	 * or just plain text files with the outlines */
 	export_jpeg = 1;
+	export_svg  = 1;
 	export_text = 0;
 	if(argc==9){
 		argv[8][3]=0;	/* avoid buffer overruns */
 		if(strcmp("-t",argv[8])==0){
 			export_jpeg = 0;
+			export_svg  = 0;
 			export_text = 1;
 		}
 		if(strcmp("-b",argv[8])==0){
 			export_jpeg = 1;
+			export_svg  = 1;
+			export_text = 1;
+		}
+		if(strcmp("-s",argv[8])==0){
+			export_jpeg = 1;
+			export_svg  = 0;
 			export_text = 1;
 		}
 	}
@@ -741,10 +757,10 @@ int main(int argc, char **argv)
 		
 		/* even if we can't do the analysis we can still output the data
 		 * in a format consistent with the rest */
-		if(export_jpeg){
+		if(export_svg){
 			printf(" exporting\n");
-			conv_pix_type_to_char(next, buf, dims[1]*dims[2], maxval);
-			export_spaths(ss,nspath,buf,dims[1],dims[2],argv[6],i);
+			if(export_jpeg) conv_pix_type_to_char(next, buf, dims[1]*dims[2], maxval);
+			export_spaths(ss,nspath,buf,dims[1],dims[2],argv[6],i,export_jpeg);
 		}
 		if(export_text){
 			export_spaths_text(ss,nspath,argv[6],kappa,i);
