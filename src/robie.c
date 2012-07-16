@@ -532,7 +532,7 @@ int main(int argc, char **argv)
         printf("phase.txt is a file containing phases in robie format. It can be 'none'\n");
         printf("If the -t option is given, only outputs outlines as plain text files.\n");
         printf("If the -b option is given, outputs both svg and plain text.\n");
-        printf("If the -s option is given, outputs just svg with no jpeg.\n");
+        printf("If the -s option is given, outputs svg with no jpeg.\n");
         printf("Path style for svg is read from file robie.conf in current dir.\n");
         printf("examples:\n");
         printf("\tmo livecell.ics outline.svg 0 1000\n");
@@ -645,8 +645,8 @@ int main(int argc, char **argv)
 			export_text = 1;
 		}
 		if(strcmp("-s",argv[8])==0){
-			export_jpeg = 1;
-			export_svg  = 0;
+			export_jpeg = 0;
+			export_svg  = 1;
 			export_text = 1;
 		}
 	}
