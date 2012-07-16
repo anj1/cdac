@@ -215,7 +215,6 @@ void export_path_svg(FILE *f, char *id, point2d32f *path, int n, char *pathstyle
 	
 	/* tell it how to render it */
 	fprintf(f,"style=\"%s\" />", pathstyle);
-	fprintf(f,"
 }
 
 void export_path_svg_end(FILE *f)
@@ -243,7 +242,7 @@ void export_spaths(spath *s, int nspaths, unsigned char *buf, int w, int h, char
 		strcpy(pathstyle,"stroke:#FF0000;stroke-miterlimit:4;stroke-dasharray:none;stroke-width:3.0;fill:none");
 	} else {
 		if((i=fseek(f,0,SEEK_END))>2048){
-			fprintf("ERROR: style string too long.");
+			fprintf(stderr,"ERROR: style string too long.");
 			return;
 		}
 		fseek(f,0,SEEK_SET);
