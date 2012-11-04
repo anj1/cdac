@@ -67,7 +67,6 @@ float beam_integral(float *sobx, float *soby, int width, point2d32f p1, point2d3
 		vx = 1.0 - wx;
 		vy = 1.0 - wy;
 		idx = xi + width*yi;
-		/* printf("x,y:%f,%f xi,yi: %d,%d\n", ip[i].x, ip[i].y, xi, yi); */
 		sobx2 = SAMP_PC_LIN(sobx);
 		soby2 = SAMP_PC_LIN(soby);
 		

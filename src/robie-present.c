@@ -99,7 +99,8 @@ void export_svg(FILE *svg, cell_t **c, int *frames, int nframes, int *n, int nco
 	fprintf(svg,"<g id=\"numbers\">\n");	/* group nums for ez edit */
 	for(row=0;row<nrows;row++){
 		for(col=0;col<ncols;col++){
-			fprintf(svg,"\t<text x=\"%d\" y=\"%d\"",col*dx+8,row*dy+30);
+			//fprintf(svg,"\t<text x=\"%d\" y=\"%d\"",col*dx+8,row*dy+30);
+			fprintf(svg,"\t<text x=\"%d\" y=\"%d\"",(col+1)*dx-40,row*dy+30);
 			fprintf(svg," font-size=\"28\" font-family=\"Arial\" ");
 			fprintf(svg,"fill=\"white\" >");
 			fprintf(svg,"%d",frames[i]-frames[0]+start);

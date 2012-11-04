@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <netinet/in.h>	/* ntohs(), htons() */
 #include <stdlib.h>	/* atoi() */
 

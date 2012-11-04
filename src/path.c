@@ -290,6 +290,7 @@ int path_simplify_smart(point2d32f *path, float *phase, float len, int n, float 
 /* this subroutine started out simple but then I realized I have to take the
  * case of vertical lines into account. It should now be bullet-proof.*/
 /* 5 stars */
+/* TODO: when line segments are connected, works only sporadically */
 int find_intersect(point2d32f pa1, point2d32f pa2, point2d32f pb1, point2d32f pb2, point2d32f *pi)
 {
 	float sa,oa;	/* slope, offset */
@@ -317,7 +318,16 @@ int find_intersect(point2d32f pa1, point2d32f pa2, point2d32f pb1, point2d32f pb
 	}
 	
 	/* lines parallel? (would result in divide by zero) */
-	if(fabs(sa-sb) < ALIB_ZERO) return 0;
+	if(fabs(sa-sb) < ALIB_ZERO){
+		/* check if lines are incident on one another */
+		/* they can't be incident if their offsets aren't equal */
+		if(fabs(oa-ob) < ALIB_ZERO){
+			/* check if vertices are on the same line segment */
+			if(dist2d(pa1,pa2)+ALIB_ZERO>=dist2d(pa1,pb1)+dist2d(pb1,pa2)){ pi->x=pb1.x; pi->y=pb1.y; return 1;}
+			if(dist2d(pb1,pb2)+ALIB_ZERO>=dist2d(pb1,pa1)+dist2d(pa1,pb2)){ pi->x=pa1.x; pi->y=pa1.y; return 1;}
+		}
+		return 0;
+	}
 	
 	/* if not, calc intersection point */
 	
@@ -328,11 +338,11 @@ int find_intersect(point2d32f pa1, point2d32f pa2, point2d32f pb1, point2d32f pb
 		if(dxaz){
 			pi->x = pa2.x;
 			pi->y = sb*pi->x + ob;
-			if(((pi->y-pa1.y)*(pi->y-pa2.y)) > 0) return 0;
+			if(((pi->y-pa1.y)*(pi->y-pa2.y)) > ALIB_ZERO) return 0;
 		} else {	/* dxb < ALIB_ZERO */
 			pi->x = pb2.x;
 			pi->y = sa*pi->x + oa;
-			if(((pi->y-pb1.y)*(pi->y-pb2.y)) > 0) return 0;
+			if(((pi->y-pb1.y)*(pi->y-pb2.y)) > ALIB_ZERO) return 0;
 		}
 	}
 
