@@ -103,7 +103,7 @@ void copy_negate(tdot_t *dst, tdot_t *src, int n)
 	for(i=0;i<n;i++) dst[i]=-src[i];
 }
 
-int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa)
+int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa, int low_conf_rm)
 {
 	int pathn;
 	avl_tree_t *avl;

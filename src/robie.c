@@ -723,7 +723,7 @@ int main(int argc, char **argv)
 			/* the meat of the problem */
 			for(j=0;j<nspath;j++){
 				ts=ss+j;
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappam,low_conf_rm);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa,low_conf_rm);
 				
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa);
 				
