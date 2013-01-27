@@ -143,8 +143,9 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 		PATH_ERR_CHK(path_subdivide2(p->p,p->phase,seg_length,pathn,MAX_PATHN,1),"subdivide_path");
 		
 		pathn = remove_intersect(p->p, p->phase, pathn, 1);
-		//pathn = remove_lowweight(p->p, p->perr, p->phase, pathn, 1);
-		
+		if(low_conf_rm){
+			pathn = remove_lowweight(p->p, p->perr, p->phase, pathn, 1);
+		}
 		/* to get ready for next step, make sure not self-intersections */
 		snake_init_extrude_bounds  (s->bminus,s->bplus,search_rad,pathn);
 		snake_refine_extrude_bounds(p->p,s->bminus,s->bplus,pathn,1);
@@ -194,7 +195,9 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 			}
 			
 			snake_deform2_int(p->p,path->p,s->norml,path->extr,pathn,search_rad,1);
-			//pathn = remove_lowweight(path->p, path->perr, path->phase, pathn, 1);
+			if(low_conf_rm){
+				pathn = remove_lowweight(path->p, path->perr, path->phase, pathn, 1);
+			}
 			pathn = remove_intersect(path->p, path->phase, pathn, 1);
 			
 

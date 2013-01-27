@@ -36,7 +36,7 @@ typedef struct spath{
 	point2d32f   norml   [MAX_PATHN*MAX_SEARCH_RAD];	/* low-pass */
 } spath;
 
-int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa);
+int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa, int low_conf_rm);
 
 int extr_avg(int *extr, spath *s);
 

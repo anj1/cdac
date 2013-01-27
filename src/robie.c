@@ -526,8 +526,10 @@ int main(int argc, char **argv)
 	int export_text;
 	int export_svg;
 	
+	int low_conf_rm;
+	
     if(argc < 7){
-        printf("usage: robie <filename.ics | filename<format>.pgm> <outline.svg> startframe endframe kappa <output-dir> <phase.txt> [-t]\n");
+        printf("usage: robie <filename.ics | filename<format>.pgm> <outline.svg> startframe endframe kappa <output-dir> <phase.txt> [-t] [low_conf_rm]\n");
         printf("\tIf filename is .pgm, we assume it's a series of pgm files, and the format string must be a printf-type string with a %%[]d inside it.\n");
         printf("phase.txt is a file containing phases in robie format. It can be 'none'\n");
         printf("If the -t option is given, only outputs outlines as plain text files.\n");
@@ -651,6 +653,12 @@ int main(int argc, char **argv)
 		}
 	}
 	
+	/* get whether low-confidence line segments should be removed */
+	low_conf_rm = 0;
+	if(argc==10){
+		low_conf_rm = strcmp("yes",argv[8]) == 0 ? 1 : 0;
+	}
+	
     /* allocate space before reading */
     /* Only allocate for one frame; allows images with many frames
      * to be loaded without much memory, unlike some programs
@@ -715,7 +723,7 @@ int main(int argc, char **argv)
 			/* the meat of the problem */
 			for(j=0;j<nspath;j++){
 				ts=ss+j;
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappam,low_conf_rm);
 				
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa);
 				
@@ -725,13 +733,13 @@ int main(int argc, char **argv)
 				
 				
 				
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/2,NORMAL_DRIFT,SEG_LENGTH/2,16,0.5*kappa);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/2,NORMAL_DRIFT,SEG_LENGTH/2,16,0.5*kappa,low_conf_rm);
 				
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/2,NORMAL_DRIFT,SEG_LENGTH/2,16,0.5*kappa);
 				
 				
 				
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa,low_conf_rm);
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa);
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa);
 				
