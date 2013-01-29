@@ -634,7 +634,7 @@ int main(int argc, char **argv)
 	export_jpeg = 1;
 	export_svg  = 1;
 	export_text = 0;
-	if(argc==9){
+	if(argc>=9){
 		argv[8][3]=0;	/* avoid buffer overruns */
 		if(strcmp("-t",argv[8])==0){
 			export_jpeg = 0;
