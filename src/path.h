@@ -12,6 +12,7 @@ int path_simplify (struct point2d32f *path, float len, int n, int nmax);
 int path_subdivide2(struct point2d32f *path, float *phase, float len, int n, int nmax, int closed);
 int path_simplify2 (struct point2d32f *path, float *phase, float len, int n);
 int path_simplify_smart(point2d32f *path, float *phase, float len, int n, float angle);
+int path_simplify_smart2(point2d32f *path, float *phase, float len, int n, float angle, int closed);
 
 void repair_path(point2d32f *path1, point2d32f *path2, float *featerr, float thresh, int pathn, int closed);
 

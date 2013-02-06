@@ -130,6 +130,9 @@ static int halve_seg2(point2d32f *path, float *phase, float len, int n, int nmax
 	
 	newn=n; qend=0; qstart=0; qlen=0;
 	for(i=0;i<n;i++){
+		/* 'q' means queue */
+		/* initialize the queue */
+		/* q1 is for vertices, q2 is for their phases */
 		q1[qstart]=path[i];
 		q2[qstart]=phase[i];
 		Q_PUSH2(qlen,qstart,qend,MAX_Q);
@@ -138,7 +141,7 @@ static int halve_seg2(point2d32f *path, float *phase, float len, int n, int nmax
 			i2 = closed ? (i+1)%n : i+1;
 			if(dist2d(path[i2],path[i]) > len){
 				phase2 = phase[i2];
-				if(i==n-1) phase2=2*PI;		/* correct phase for wrap */
+				if(i==n-1) phase2=+2*PI;	/* correct phase for wrap */
 				
 				new.x = 0.5*(path [i].x + path [i2].x);
 				new.y = 0.5*(path [i].y + path [i2].y);
@@ -183,6 +186,7 @@ int path_subdivide(point2d32f *path, float len, int n, int nmax)
 
 /* like above, but works with implicitly-closed curves
  * and returns correct phase */
+/* tested thoroughly, including phase, for closed and open */
 int path_subdivide2(point2d32f *path, float *phase, float len, int n, int nmax, int closed)
 {
 	int newn;
@@ -239,6 +243,7 @@ int path_simplify2(point2d32f *path, float *phase, float len, int n)
 	return j+1;
 }
 
+//int path_subdivide_smart_cleanup(point2d32f *path, float *phase, float len, 
 /* like above,
  * but doesn't remove segments that form angles more acute than given */
 /* angle=0: same behavior as path_simplify2
@@ -282,6 +287,53 @@ int path_simplify_smart(point2d32f *path, float *phase, float len, int n, float 
 	path [j] = path [n-1];
 	phase[j] = phase[n-1];
 	return j+1;
+}
+
+int path_simplify_smart2(point2d32f *path, float *phase, float len, int n, float angle, int closed)
+{
+	int i,i2,j;
+	float thislen,prevlen;
+	float thisang;
+	float rangle;
+	
+	rangle = PI-angle;	/* convert obtuse angle into acute angle */
+	
+	thisang=0.0;	/* start parallel */
+	prevlen=len;
+	j=0;
+	for(i=0;i<n;i++){
+		i2=(i+1);
+		if(i>=n-1){
+			if(!closed) break;
+			i2=(i+1)%n;
+		}
+		thislen = dist2d(path[i2],path[i]);
+		
+		/* take dot product */
+		/* todo: make this wrap around (for closed curves) */
+		if(j>0) thisang = acos((
+			(path[i].x-path[j-1].x)*(path[i2].x-path[i].x) + 
+			(path[i].y-path[j-1].y)*(path[i2].y-path[i].y))
+				/ (thislen*prevlen));
+		
+		/* path[j] changes at each iteration but j stays the same,
+		 * until we exceed the length requirement and angle requirement */
+		path [j] = path [i];
+		phase[j] = phase[i];
+		
+		/* if the below criterion is satisfied, vertex is removed and we
+		 * accumulate more length */
+		if((len>prevlen+thislen)&&(thisang<rangle)) thislen=prevlen+thislen; else j++;
+		prevlen=thislen;
+	}
+	/* We have to do this right now because of i<n-1 in the for loop */
+	/* with support for implicit closed curves this should be removed */
+	if(!closed){
+		path [j] = path [n-1];
+		phase[j] = phase[n-1];
+		j++;
+	}
+	return j;
 }
 
 /* returns 1 if the line segments defined by pa1-pa2 and pb1-pb2
@@ -878,16 +930,16 @@ void test1()
 	float     ph[20];
 	int newn;
 	
-	p[0].x=0; p[0].y=0; ph[0]=0;
-	p[1].x=1; p[1].y=1; ph[1]=1;
-	p[2].x=9; p[2].y=2; ph[2]=2;
-	p[3].x=9; p[3].y=9; ph[3]=3;
+	p[0].x=0; p[0].y=0; ph[0]=0.0*2*PI;
+	p[1].x=1; p[1].y=1; ph[1]=0.3*2*PI;
+	p[2].x=9; p[2].y=2; ph[2]=0.6*2*PI;
+	p[3].x=9; p[3].y=9; ph[3]=0.9*2*PI;
 	
-	newn = path_subdivide2(p, ph, 3.0, 4, 20,0);
+	newn = path_subdivide2(p, ph, 3.0, 4, 20, 0);
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
-		printf("phase: %f x,y: %f,%f\n", ph[i], p[i].x, p[i].y);
+		printf("phase: %f x,y: %f,%f\n", ph[i]/(2*PI), p[i].x, p[i].y);
 	}
 	
 	
@@ -896,7 +948,7 @@ void test1()
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
-		printf("phase: %f x,y: %f,%f len:%f\n", ph[i], p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
+		printf("phase: %f x,y: %f,%f len:%f\n", ph[i]/(2*PI), p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
 	}
 	/*
 	p[0].x=0; p[0].y=0;
@@ -1096,7 +1148,7 @@ void test6()
 	p[2].x=16; p[2].y=2; ph[2]=2;
 	p[3].x=0;  p[3].y=3; ph[3]=3;
 	
-	newn = path_subdivide2(p, ph, 3.0, 4, 20,0);
+	newn = path_subdivide2(p, ph, 3.0, 4, 20, 0);
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
@@ -1113,9 +1165,39 @@ void test6()
 	}
 }
 
+/* test path_simplify_smart2 */
+void test7()
+{
+	int i;
+	point2d32f p[20];
+	float     ph[20];
+	int newn;
+	
+	p[0].x=0;  p[0].y=0; ph[0]=0.0*2*PI;
+	p[1].x=1;  p[1].y=1; ph[1]=0.3*2*PI;
+	p[2].x=0;  p[2].y=2; ph[2]=0.6*2*PI;
+	p[3].x=0;  p[3].y=1; ph[3]=0.9*2*PI;
+	
+	newn = path_subdivide2(p, ph, 3.0, 4, 20, 0);
+	printf("number of new segs: %d\n", newn);
+	
+	for(i=0;i<newn;i++){
+		printf("phase: %f x,y: %f,%f\n", ph[i]/(2*PI), p[i].x, p[i].y);
+	}
+	
+	
+	newn = path_simplify_smart2(p, ph, 2.1, newn, 0.0399*PI, 1); //0.5*PI);
+	//newn = path_simplify(p,5.0,newn,20);
+	printf("number of new segs: %d\n", newn);
+	
+	for(i=0;i<newn;i++){
+		printf("phase: %f x,y: %f,%f len:%f\n", ph[i]/(2*PI), p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
+	}
+}
+
 int main()
 {
-	test5();
+	test7();
 	return 0;
 }
 

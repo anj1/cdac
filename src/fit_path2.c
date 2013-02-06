@@ -139,7 +139,7 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 		path_smooth(p->p,tmp.p,pathn,1,1.0);
 	
 		/* prepare path */
-		PATH_ERR_CHK(path_simplify_smart(p->p,p->phase,0.5*seg_length,pathn,ANGLE_THRESHOLD),"simplify_path");
+		PATH_ERR_CHK(path_simplify_smart2(p->p,p->phase,0.5*seg_length,pathn,ANGLE_THRESHOLD,1),"simplify_path");
 		PATH_ERR_CHK(path_subdivide2(p->p,p->phase,seg_length,pathn,MAX_PATHN,1),"subdivide_path");
 		
 		pathn = remove_intersect(p->p, p->phase, pathn, 1);
