@@ -258,13 +258,23 @@ float complex pclin_fourier(float *pdx, float *pf, int n, float w)
 	float complex alpha;
 	float complex invalpha;
 	
-	//alpha = -2*PI*_Complex_I*w;
-	alpha = -_Complex_I*w;
-	invalpha = 1/alpha;
-	
 	x1 = 0.0;
 	sum = 0.0;
 	f1=pf[n-1];
+
+	/* different behavior for zero w */
+	if(w==0.0){
+		for(i=0;i<n;i++){
+			sum += 0.5*pdx[i]*(f1 + pf[i]);
+			x1 += pdx[i];
+			f1 = pf[i];
+		}
+		return sum;
+	}
+	
+	/* regular behavior for nonzero w */
+	alpha = -_Complex_I*w;
+	invalpha = 1/alpha;
 	for(i=0;i<n;i++){
 		f2 =     pf[i];
 		x2 = x1+pdx[i];
