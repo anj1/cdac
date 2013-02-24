@@ -21,6 +21,7 @@
 #include <math.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdlib.h>
 #ifdef TEST_MODE
 #include <stdio.h>
 #endif
@@ -74,6 +75,11 @@ float snake_trace_bellmanford(int *extr, int pathn, tdot_t *ptdot, int rad, int 
 	tdot_t *tdot;
 	
 	w = 2*rad-1;
+	
+	if(pathn<=1){
+		fprintf(stderr,"ERROR: %s: pathn=%d\n", __func__, pathn);
+		exit(1);
+	}
 	
 	tmp = (tdot_t *)malloc(w*w*sizeof(tdot_t));
 	if(!tmp) return -1.0;
