@@ -519,6 +519,7 @@ struct s_ignore *load_ignore(char *filnam, int maxframe)
 			exit(2);
 		}
 		
+		ignore_areas[framen].n = nreg;
 		for(i=0;i<nreg;i++){
 			ignore_areas[framen].x1[i] = (short)strtof(pline, &pline);
 			ignore_areas[framen].y1[i] = (short)strtof(pline, &pline);
