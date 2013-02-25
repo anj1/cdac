@@ -103,7 +103,34 @@ void copy_negate(tdot_t *dst, tdot_t *src, int n)
 	for(i=0;i<n;i++) dst[i]=-src[i];
 }
 
-int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa, int low_conf_rm)
+/* if the current frame has 'ignore' areas, remove them */
+void remove_ignore(float *sobx, float *soby, int w, s_ignore *ignore_area)
+{
+	int i,x,y;
+	int x1,y1,x2,y2;
+	
+	/* no ignore list in current frame? *return* */
+	if(!ignore_area[0].n) return;
+
+	/* for each ignored area */
+	for(i=0;i<(ignore_area->n);i++){
+		
+		x1 = ignore_area->x1[i];
+		y1 = ignore_area->y1[i];
+		x2 = ignore_area->x2[i];
+		y2 = ignore_area->y2[i];
+	
+		for(x=x1; x<x2; x++){
+			for(y=y1; y<y2; y++){
+				sobx[w*y + x] = 0.0;
+				soby[w*y + x] = 0.0;
+			}
+		}
+	}
+}
+
+
+int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa, int low_conf_rm, s_ignore *ignore_area)
 {
 	int pathn;
 	avl_tree_t *avl;
@@ -118,6 +145,7 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 	 
 	/** Image preparation **/
 	sobel2cf(img,sobx,soby,w,h);
+	if(ignore_area) remove_ignore(sobx,soby,w,ignore_area);	/* remove debris areas */
 	
 	/** AVL tree preparation (for online sort) **/
 	avl = avl_alloc_tree(&cpath_compare, NULL);

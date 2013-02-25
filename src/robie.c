@@ -476,6 +476,63 @@ void prepare_path_file(spath *ss, int nspath, char *fil)
 	
 }
 
+/* ignore file must be of format:
+ * <frame number> <number of regions> x1 y1 x2 y2   x1 y1 x2 y2, ....
+ * 
+ * not all frames are required to be specified, but they must be ordered
+ */
+/* maxframe: maximum end frame we care about */
+struct s_ignore *load_ignore(char *filnam, int maxframe)
+{
+	FILE *f;
+	size_t len;
+	char *lineptr,*pline;
+	s_ignore *ignore_areas;
+	int framen,nreg;
+	int i;
+	
+	len = 0;//120;
+	lineptr=NULL;//malloc(len);
+	
+	f = fopen(filnam,"r");
+	if(!f) return NULL;
+	
+	/* allocate ignore areas */
+	/* initially zero is important if referenced */
+	ignore_areas = (s_ignore *)calloc(maxframe+1,sizeof(s_ignore));
+	if(!ignore_areas){
+		fprintf(stderr,"ERROR: %s: couldn't allocate enough memory\n",__func__);
+		exit(1);
+	}
+	
+	/* read each line from the file */
+	do{
+		
+		if(getline(&lineptr, &len, f)<1) {free(lineptr); return ignore_areas;}
+
+		framen = strtol(lineptr, &pline, 10);
+		if(framen > maxframe) break;
+		
+		nreg   = strtol(pline, &pline, 10);
+		if(nreg > MAX_IGNORE_REGION){
+			fprintf(stderr,"ERROR: %s: too many ignore regions in frame %d!\n",__func__,framen);
+			exit(2);
+		}
+		
+		for(i=0;i<nreg;i++){
+			ignore_areas[framen].x1[i] = (short)strtof(pline, &pline);
+			ignore_areas[framen].y1[i] = (short)strtof(pline, &pline);
+			ignore_areas[framen].x2[i] = (short)strtof(pline, &pline);
+			ignore_areas[framen].y2[i] = (short)strtof(pline, &pline);
+		}
+	}while(!feof(f));
+	
+	free(lineptr);
+	return ignore_areas;
+	
+	fclose(f);
+}
+
 int main(int argc, char **argv)
 {
 
@@ -528,6 +585,8 @@ int main(int argc, char **argv)
 	
 	int low_conf_rm;
 	
+	struct s_ignore *ignore_areas;
+	
     if(argc < 7){
         printf("usage: robie <filename.ics | filename<format>.pgm> <outline.svg> startframe endframe kappa <output-dir> <phase.txt> [-t] [low_conf_rm]\n");
         printf("\tIf filename is .pgm, we assume it's a series of pgm files, and the format string must be a printf-type string with a %%[]d inside it.\n");
@@ -536,6 +595,7 @@ int main(int argc, char **argv)
         printf("If the -b option is given, outputs both svg and plain text.\n");
         printf("If the -s option is given, outputs svg with no jpeg.\n");
         printf("Path style for svg is read from file robie.conf in current dir.\n");
+        printf("Regions to ignore (ex: debris) will be read from debris.dat in current dir.\n");
         printf("examples:\n");
         printf("\tmo livecell.ics outline.svg 0 1000\n");
         printf("\tmo frame_%%04d.pgm 10.svg 10 20\n");
@@ -659,6 +719,9 @@ int main(int argc, char **argv)
 		low_conf_rm = strcmp("yes",argv[8]) == 0 ? 1 : 0;
 	}
 	
+	/* load areas to be ignored */
+	ignore_areas = load_ignore("debris.dat",endframe);
+	 
     /* allocate space before reading */
     /* Only allocate for one frame; allows images with many frames
      * to be loaded without much memory, unlike some programs
@@ -722,8 +785,12 @@ int main(int argc, char **argv)
 			
 			/* the meat of the problem */
 			for(j=0;j<nspath;j++){
+				s_ignore *thisignore;
+				
+				if(ignore_areas) thisignore = ignore_areas + i; else thisignore = NULL;
+				
 				ts=ss+j;
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa,low_conf_rm);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa,low_conf_rm,thisignore);
 				
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD,NORMAL_DRIFT,SEG_LENGTH,16,kappa);
 				
@@ -733,13 +800,13 @@ int main(int argc, char **argv)
 				
 				
 				
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/2,NORMAL_DRIFT,SEG_LENGTH/2,16,0.5*kappa,low_conf_rm);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/2,NORMAL_DRIFT,SEG_LENGTH/2,16,0.5*kappa,low_conf_rm,thisignore);
 				
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/2,NORMAL_DRIFT,SEG_LENGTH/2,16,0.5*kappa);
 				
 				
 				
-				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa,low_conf_rm);
+				err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa,low_conf_rm,thisignore);
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa);
 				//err=fit_path(tmp1,dims[1],dims[2],sobx,soby,sobhist,ts,MAX_SEARCH_RAD/4,NORMAL_DRIFT,SEG_LENGTH/4,16,0.25*kappa);
 				

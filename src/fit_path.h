@@ -6,6 +6,8 @@
 /* for 10_0000, use 16 */ 
 #define MAX_SEARCH_RAD 10
 
+#define MAX_IGNORE_REGION 8
+
 /* options used / optimization parameters */
 typedef struct pathopts{
 	float kappa;
@@ -36,7 +38,15 @@ typedef struct spath{
 	point2d32f   norml   [MAX_PATHN*MAX_SEARCH_RAD];	/* low-pass */
 } spath;
 
-int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa, int low_conf_rm);
+typedef struct s_ignore{
+	int n;	/* number of points to ignore */
+	short x1[MAX_IGNORE_REGION];
+	short y1[MAX_IGNORE_REGION];
+	short x2[MAX_IGNORE_REGION];
+	short y2[MAX_IGNORE_REGION];
+} s_ignore;
+
+int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist, spath *s, int search_rad, float normal_drift, float seg_length, int blockw, float kappa, int low_conf_rm, s_ignore *ignore_area);
 
 int extr_avg(int *extr, spath *s);
 
