@@ -1195,9 +1195,41 @@ void test7()
 	}
 }
 
+/* test remove_run */
+void test8()
+{
+	int i,n;
+	float ang;
+	point2d32f pi;
+	point2d32f p[32];
+	float phase[32];
+	float perr[32];
+	
+	n=16;
+	for(i=0;i<n;i++){
+		ang = 2*M_PI*((float)i)/n;
+		p[i].x = cos(ang);
+		p[i].y = sin(ang);
+		phase[i] = ang;
+	}
+	
+	pi.x = 0;
+	pi.y = 0;
+	
+	for(i=0;i<n;i++){
+		printf("(%f,%f):%f\n",p[i].x,p[i].y,phase[i]/(2*M_PI));
+	}
+	printf("\n");
+	
+	n = remove_run(p, phase, perr, n, 3, 11, pi);
+	for(i=0;i<n;i++){
+		printf("(%f,%f):%f\n",p[i].x,p[i].y,phase[i]/(2*M_PI));
+	}
+}
+
 int main()
 {
-	test7();
+	test8();
 	return 0;
 }
 
