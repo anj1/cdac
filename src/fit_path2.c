@@ -110,7 +110,7 @@ void remove_ignore(float *sobx, float *soby, int w, s_ignore *ignore_area)
 	int x1,y1,x2,y2;
 	
 	/* no ignore list in current frame? *return* */
-	if(!ignore_area[0].n) return;
+	if(!ignore_area->n) return;
 
 	/* for each ignored area */
 	for(i=0;i<(ignore_area->n);i++){
@@ -156,9 +156,9 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 	 * end we copy the AVL tree to p->path and implicitly free
 	 * all the memory */
 	for(i=0;i<s->npath;i++){
-
+#ifdef DEBUG_PRINT
 		printf("input %d\n", i);
-		
+#endif
 		p = s->path + i;
 		pathn = p->n;
 		
@@ -204,15 +204,17 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 			path1->opts.kappa  = kappa;
 			extr_to_error(path1->perr,path1->extr,pathn,s->tdot,search_rad,1);
 			path1->eval = avg_err(path1->perr, pathn);
+#ifdef DEBUG_PRINT
 			printf("Average along path (-'ve): %f ", path1->eval);
-
+#endif
 			/* for positive polarity */
 			snake_trace_bellmanford(path2->extr,pathn,tmpdot,search_rad,1);
 			path2->opts.kappa  = kappa;
 			extr_to_error(path2->perr,path2->extr,pathn,tmpdot,search_rad,1);
 			path2->eval = avg_err(path2->perr, pathn);
+#ifdef DEBUG_PRINT
 			printf("(+'ve): %f\n", path2->eval);
-		
+#endif
 			/* out of positive and negative polarities, choose best one */
 			if(path2->eval > path1->eval){
 				free(path1);
@@ -256,8 +258,9 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 
 	for(i=0;i<MAX_PATHS;i++){
 		memcpy(s->path + i,this->item,sizeof(cpath));
+#ifdef DEBUG_PRINT
 		printf("eval: %f\n", s->path[i].eval);
-
+#endif
 		this = this->prev;
 		if(!this) {i++; break; }	/* PRESSURE_POINT */
 	}
