@@ -21,8 +21,8 @@
 //#define PERR_THRESH 0.10
 #define PERR_RUN 10
 
-#ifndef PI
-#define PI 3.141592653589793
+#ifndef M_PI
+#define M_PI 3.141592653589793
 #endif
 
 #include <math.h>	/* sqrt(), fabs() */
@@ -117,7 +117,7 @@ static int halve_seg(point2d32f *path, float len, int n, int nmax)
 /* like above, but works with implicitly-closed curves,
  * and also returns correct phase */
 /* this subroutine was simple until I realized that it would go from large phase
- * to zero on the last segment; now it goes to 2*PI */
+ * to zero on the last segment; now it goes to 2*pi */
 static int halve_seg2(point2d32f *path, float *phase, float len, int n, int nmax, int closed)
 {
 	point2d32f q1[MAX_Q];
@@ -141,7 +141,7 @@ static int halve_seg2(point2d32f *path, float *phase, float len, int n, int nmax
 			i2 = closed ? (i+1)%n : i+1;
 			if(dist2d(path[i2],path[i]) > len){
 				phase2 = phase[i2];
-				if(i==n-1) phase2=+2*PI;	/* correct phase for wrap */
+				if(i==n-1) phase2=+2*M_PI;	/* correct phase for wrap */
 				
 				new.x = 0.5*(path [i].x + path [i2].x);
 				new.y = 0.5*(path [i].y + path [i2].y);
@@ -247,7 +247,7 @@ int path_simplify2(point2d32f *path, float *phase, float len, int n)
 /* like above,
  * but doesn't remove segments that form angles more acute than given */
 /* angle=0: same behavior as path_simplify2
- * angle=PI: remove nothing */
+ * angle=M_PI: remove nothing */
 /* TODO: handle implicitly closed curves */
 int path_simplify_smart(point2d32f *path, float *phase, float len, int n, float angle)
 {
@@ -256,7 +256,7 @@ int path_simplify_smart(point2d32f *path, float *phase, float len, int n, float 
 	float thisang;
 	float rangle;
 	
-	rangle = PI-angle;	/* convert obtuse angle into acute angle */
+	rangle = M_PI-angle;	/* convert obtuse angle into acute angle */
 	
 	thisang=0.0;	/* start parallel */
 	prevlen=len;
@@ -296,7 +296,7 @@ int path_simplify_smart2(point2d32f *path, float *phase, float len, int n, float
 	float thisang;
 	float rangle;
 	
-	rangle = PI-angle;	/* convert obtuse angle into acute angle */
+	rangle = M_PI-angle;	/* convert obtuse angle into acute angle */
 	
 	thisang=0.0;	/* start parallel */
 	prevlen=len;
@@ -533,7 +533,7 @@ int find_lowweight_run(point2d32f *path, float *perr, int n, int closed, point2d
 }
 
 
-/* remove the intersection */
+/* remove a section of the path */
 /* inputs:
  *  i: start of intersecting run
  *  j: end   of intersecting run
@@ -564,10 +564,10 @@ int remove_run(point2d32f *path, float *phase, float *perr, int n, int i, int j,
 		if(perr) for(k=j;k<=i;k++) perr[k-j]=perr[k];
 		reshift=0;
 		if(phase){
-			phase[j]=0.5*(phase[i]+(2*PI+phase[j+1]));
+			phase[j]=0.5*(phase[i]+(2*M_PI+phase[j+1]));
 			/* if the new intersection point is not the first point,
 			 * phase-wise, then remember to shift the whole thing again */
-			if(phase[j]>2*PI) phase[j]-=2*PI; else reshift=1;
+			if(phase[j]>2*M_PI) phase[j]-=2*M_PI; else reshift=1;
 			for(k=j;k<=i;k++) phase[k-j]=phase[k];
 		}
 		n -= ((n-1)-i)+j;
@@ -930,16 +930,16 @@ void test1()
 	float     ph[20];
 	int newn;
 	
-	p[0].x=0; p[0].y=0; ph[0]=0.0*2*PI;
-	p[1].x=1; p[1].y=1; ph[1]=0.3*2*PI;
-	p[2].x=9; p[2].y=2; ph[2]=0.6*2*PI;
-	p[3].x=9; p[3].y=9; ph[3]=0.9*2*PI;
+	p[0].x=0; p[0].y=0; ph[0]=0.0*2*M_PI;
+	p[1].x=1; p[1].y=1; ph[1]=0.3*2*M_PI;
+	p[2].x=9; p[2].y=2; ph[2]=0.6*2*M_PI;
+	p[3].x=9; p[3].y=9; ph[3]=0.9*2*M_PI;
 	
 	newn = path_subdivide2(p, ph, 3.0, 4, 20, 0);
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
-		printf("phase: %f x,y: %f,%f\n", ph[i]/(2*PI), p[i].x, p[i].y);
+		printf("phase: %f x,y: %f,%f\n", ph[i]/(2*M_PI), p[i].x, p[i].y);
 	}
 	
 	
@@ -948,7 +948,7 @@ void test1()
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
-		printf("phase: %f x,y: %f,%f len:%f\n", ph[i]/(2*PI), p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
+		printf("phase: %f x,y: %f,%f len:%f\n", ph[i]/(2*M_PI), p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
 	}
 	/*
 	p[0].x=0; p[0].y=0;
@@ -964,35 +964,35 @@ void test1()
 	
 	printf("intersect: %f %f y:%d\n", p[4].x, p[4].y, find_intersect(p[0],p[1],p[2],p[3],p+4));
 	
-	p[0].x=0; p[0].y=0; ph[0]=0.0*PI/3.0;
-	p[1].x=1; p[1].y=0; ph[1]=1.0*PI/3.0;
-	p[2].x=2; p[2].y=1; ph[2]=2.0*PI/3.0;
-	p[3].x=2; p[3].y=0; ph[3]=3.0*PI/3.0;
-	p[4].x=1; p[4].y=1; ph[4]=4.0*PI/3.0;
-	p[5].x=0; p[5].y=1; ph[5]=5.0*PI/3.0;
+	p[0].x=0; p[0].y=0; ph[0]=0.0*M_PI/3.0;
+	p[1].x=1; p[1].y=0; ph[1]=1.0*M_PI/3.0;
+	p[2].x=2; p[2].y=1; ph[2]=2.0*M_PI/3.0;
+	p[3].x=2; p[3].y=0; ph[3]=3.0*M_PI/3.0;
+	p[4].x=1; p[4].y=1; ph[4]=4.0*M_PI/3.0;
+	p[5].x=0; p[5].y=1; ph[5]=5.0*M_PI/3.0;
 	
 	newn=6;
 	newn = remove_intersect(p, ph, newn, 0);
 	printf("after intersection removal: %d\n", newn);
 	for(i=0;i<newn;i++){
-		printf("x,y;t: %f, %f; %f\n", p[i].x, p[i].y, ph[i]/(2*PI));
+		printf("x,y;t: %f, %f; %f\n", p[i].x, p[i].y, ph[i]/(2*M_PI));
 	}
 	printf("\n");
 	
-	p[0].x=0; p[0].y=0; ph[0]=0.0*PI/4.0;
-	p[1].x=1; p[1].y=1; ph[1]=1.0*PI/4.0;
-	p[2].x=2; p[2].y=1; ph[2]=2.0*PI/4.0;
-	p[3].x=3; p[3].y=1; ph[3]=3.0*PI/4.0;
-	p[4].x=3; p[4].y=0; ph[4]=4.0*PI/4.0;
-	p[5].x=2; p[5].y=0; ph[5]=5.0*PI/4.0;
-	p[6].x=1; p[6].y=0; ph[6]=6.0*PI/4.0;
-	p[7].x=0; p[7].y=1; ph[7]=7.0*PI/4.0;
+	p[0].x=0; p[0].y=0; ph[0]=0.0*M_PI/4.0;
+	p[1].x=1; p[1].y=1; ph[1]=1.0*M_PI/4.0;
+	p[2].x=2; p[2].y=1; ph[2]=2.0*M_PI/4.0;
+	p[3].x=3; p[3].y=1; ph[3]=3.0*M_PI/4.0;
+	p[4].x=3; p[4].y=0; ph[4]=4.0*M_PI/4.0;
+	p[5].x=2; p[5].y=0; ph[5]=5.0*M_PI/4.0;
+	p[6].x=1; p[6].y=0; ph[6]=6.0*M_PI/4.0;
+	p[7].x=0; p[7].y=1; ph[7]=7.0*M_PI/4.0;
 	
 	newn=8;
 	newn = remove_intersect(p, ph, newn, 0);
 	printf("after intersection removal: %d\n", newn);
 	for(i=0;i<newn;i++){
-		printf("x,y;t: %f, %f; %f\n", p[i].x, p[i].y, ph[i]/(2*PI));
+		printf("x,y;t: %f, %f; %f\n", p[i].x, p[i].y, ph[i]/(2*M_PI));
 	}
 	
 }
@@ -1091,7 +1091,7 @@ void test5()
 	float phase[TEST_PATHLEN+1];
 	
 	for(j=0;j<10;j++){
-		for(i=0,n=0;i<2*PI;i+=(2*PI/TEST_PATHLEN)){
+		for(i=0,n=0;i<2*M_PI;i+=(2*M_PI/TEST_PATHLEN)){
 			path[n].x = 400.0 + 200.0*cos(i) + 100.0*((float)rand())/RAND_MAX;
 			path[n].y = 300.0 + 200.0*sin(i) + 100.0*((float)rand())/RAND_MAX;
 			phase[n] = i;
@@ -1156,7 +1156,7 @@ void test6()
 	}
 	
 	
-	newn = path_simplify_smart(p, ph, 5.0, newn, 0.0399*PI); //0.5*PI);
+	newn = path_simplify_smart(p, ph, 5.0, newn, 0.0399*M_PI); //0.5*M_PI);
 	//newn = path_simplify(p,5.0,newn,20);
 	printf("number of new segs: %d\n", newn);
 	
@@ -1173,25 +1173,25 @@ void test7()
 	float     ph[20];
 	int newn;
 	
-	p[0].x=0;  p[0].y=0; ph[0]=0.0*2*PI;
-	p[1].x=1;  p[1].y=1; ph[1]=0.3*2*PI;
-	p[2].x=0;  p[2].y=2; ph[2]=0.6*2*PI;
-	p[3].x=0;  p[3].y=1; ph[3]=0.9*2*PI;
+	p[0].x=0;  p[0].y=0; ph[0]=0.0*2*M_PI;
+	p[1].x=1;  p[1].y=1; ph[1]=0.3*2*M_PI;
+	p[2].x=0;  p[2].y=2; ph[2]=0.6*2*M_PI;
+	p[3].x=0;  p[3].y=1; ph[3]=0.9*2*M_PI;
 	
 	newn = path_subdivide2(p, ph, 3.0, 4, 20, 0);
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
-		printf("phase: %f x,y: %f,%f\n", ph[i]/(2*PI), p[i].x, p[i].y);
+		printf("phase: %f x,y: %f,%f\n", ph[i]/(2*M_PI), p[i].x, p[i].y);
 	}
 	
 	
-	newn = path_simplify_smart2(p, ph, 2.1, newn, 0.0399*PI, 1); //0.5*PI);
+	newn = path_simplify_smart2(p, ph, 2.1, newn, 0.0399*M_PI, 1); //0.5*M_PI);
 	//newn = path_simplify(p,5.0,newn,20);
 	printf("number of new segs: %d\n", newn);
 	
 	for(i=0;i<newn;i++){
-		printf("phase: %f x,y: %f,%f len:%f\n", ph[i]/(2*PI), p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
+		printf("phase: %f x,y: %f,%f len:%f\n", ph[i]/(2*M_PI), p[i].x, p[i].y, dist2d(p[(i+1)%newn],p[i]));
 	}
 }
 
