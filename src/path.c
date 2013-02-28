@@ -532,6 +532,17 @@ int find_lowweight_run(point2d32f *path, float *perr, int n, int closed, point2d
 	return 0;
 }
 
+/* assuming a new point pi is to come between points p1 and p2, and
+ * they have phase phase1 and phase2, calculate phase for pi */
+ /* if p2 wraps around, 2*pi should be added to it before calling this*/
+float assign_phase_to_subdiv(point2d32f p1, point2d32f p2, float phase1, float phase2, point2d32f pi)
+{
+	float d1,d2;
+	d1 = dist2d(p1,pi);
+	d2 = dist2d(pi,p2);
+	printf("frac: %f (%f - %f - %f)\n", d1/(d1+d2), phase1, phase1 + (phase2-phase1)*(d1/(d1+d2)), phase2);
+	return phase1 + (phase2-phase1)*(d1/(d1+d2));
+}
 
 /* remove a section of the path */
 /* inputs:
@@ -559,17 +570,19 @@ int remove_run(point2d32f *path, float *phase, float *perr, int n, int i, int j,
 #ifdef TEST_MODE
 		printf("\touter removal.\n");
 #endif
-		path[j] = pi;
-		for(k=j;k<=i;k++) path[k-j]=path[k];
-		if(perr) for(k=j;k<=i;k++) perr[k-j]=perr[k];
+		
 		reshift=0;
 		if(phase){
-			phase[j]=0.5*(phase[i]+(2*M_PI+phase[j+1]));
+			//phase[j]=0.5*(phase[i]+(2*M_PI+phase[j+1]));
+			phase[j] = assign_phase_to_subdiv(path[i],path[j+1],phase[i],2*M_PI+phase[j+1],pi);
 			/* if the new intersection point is not the first point,
 			 * phase-wise, then remember to shift the whole thing again */
 			if(phase[j]>2*M_PI) phase[j]-=2*M_PI; else reshift=1;
 			for(k=j;k<=i;k++) phase[k-j]=phase[k];
 		}
+		path[j] = pi;
+		for(k=j;k<=i;k++) path[k-j]=path[k];
+		if(perr) for(k=j;k<=i;k++) perr[k-j]=perr[k];
 		n -= ((n-1)-i)+j;
 		if(reshift) shiftleft(path, phase, n);
 	} else {
@@ -578,13 +591,14 @@ int remove_run(point2d32f *path, float *phase, float *perr, int n, int i, int j,
 #ifdef TEST_MODE
 		printf("\tinner removal.\n");
 #endif
+		if(phase){
+			//phase[i+1] = 0.5*(phase[i]+phase[j+1]);		/* TODO: HACK. Fixed? */
+			phase[i+1] = assign_phase_to_subdiv(path[i],path[j+1],phase[i],phase[j+1],pi);
+			for(k=j+1;k<n;k++) phase[k-(j-i)+1]=phase[k];
+		}
 		path[i+1] = pi;
 		for(k=j+1;k<n;k++) path[k-(j-i)+1]=path[k];
 		if(perr) for(k=j+1;k<n;k++) perr[k-(j-i)+1]=perr[k];
-		if(phase){
-			phase[i+1] = 0.5*(phase[i]+phase[j+1]);		/* TODO: HACK. Fixed? */
-			for(k=j+1;k<n;k++) phase[k-(j-i)+1]=phase[k];
-		}
 		n -= (j-i-1);
 	}
 	return n;
