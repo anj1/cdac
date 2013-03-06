@@ -574,10 +574,10 @@ int remove_run(point2d32f *path, float *phase, float *perr, int n, int i, int j,
 		reshift=0;
 		if(phase){
 			//phase[j]=0.5*(phase[i]+(2*M_PI+phase[j+1]));
-			phase[j] = assign_phase_to_subdiv(path[i],path[j+1],phase[i],2*M_PI+phase[j+1],pi);
+			phase[j] = 2*M_PI; //TODO: HACK //assign_phase_to_subdiv(path[i],path[j+1],phase[i],2*M_PI+phase[j+1],pi);
 			/* if the new intersection point is not the first point,
 			 * phase-wise, then remember to shift the whole thing again */
-			if(phase[j]>2*M_PI) phase[j]-=2*M_PI; else reshift=1;
+			if(phase[j]>=2*M_PI) phase[j]-=2*M_PI; else reshift=1;
 			for(k=j;k<=i;k++) phase[k-j]=phase[k];
 		}
 		path[j] = pi;
@@ -1235,7 +1235,7 @@ void test8()
 	}
 	printf("\n");
 	
-	n = remove_run(p, phase, perr, n, 3, 11, pi);
+	n = remove_run(p, phase, perr, n, 11, 3, pi);
 	for(i=0;i<n;i++){
 		printf("(%f,%f):%f\n",p[i].x,p[i].y,phase[i]/(2*M_PI));
 	}
