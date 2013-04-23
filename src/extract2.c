@@ -299,6 +299,7 @@ int main (int argc, char **argv)
 					if(img[j] > maxval) maxval = img[j];
 					img[j] = htons(img[j]);	/* change byte order */
 				}
+				
 				if(!arguments.simulate){
 					export_pgm(img,dims[1],dims[2],maxval,sizeof(pix_type),curname);
 				}

@@ -83,9 +83,7 @@ void float_to_char(float *in, unsigned char *out, float coef, float offset, int 
 void conv_pix_type_to_char(pix_type *in, unsigned char *out, int size, int maxval)
 {
 	int i;
-	int shift;
-	for(shift=0;(256<<(shift+1))<=(maxval+1);shift++);
-	for(i=0;i<size;i++) out[i]=(in[i]>>shift);
+	for(i=0;i<size;i++) out[i]=(255*in[i])/maxval;
 }
 
 void conv_pix_type_to_float(pix_type *in, float *out, int max, int size)

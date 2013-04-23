@@ -30,6 +30,15 @@ To compile the code, in addition to the standard (binary) packages, you will als
 
 If you need the image export functionality, you should also have the NetPBM package (not library!) installed: http://netpbm.sourceforge.net/
 
+------------------------------ Compiling -------------------------------
+
+Compiling follows the standard procedure:
+# ./configure
+# make
+# make install
+
+For further details, see INSTALL.
+
 ------------------------- Program Descriptions -------------------------
 
 This program is organized as follows.
@@ -67,17 +76,17 @@ The main focus of the software is tracking cells and this may be done in the fol
 
 1. Find the outline(s) of the desired cells in the data. The program accepts outlines in SVG format, and thus any SVG editor may be used. A good SVG editor (and the one that was used in this work) is the freely-available Inkscape program. Note that for the program to accept the outline, all nodes in the path *must* be of type 'corner' (smooth or bezier nodes not accepted). The ID of the paths can be used to distinguish the cells; the program preserves the IDs when producing SVG output. To set the ID of the path in inkscape, right-click the path and select "Object Properties". Multiple cells can be identified in the same SVG file. For example, call the resulting file 'outline.svg' (without the quotes).
 
-2. If the input data (microscope image sequence) is available in 16-bit grayscale ICS format, it may be left as-is. Otherwise, input data must be converted to a sequence of 'raw' PGM images (either 8-bit or 16-bit PGMs are accepted). To tell the program which files to use, the program accepts filenames in printf-style format. For example, if the filenames are img0001.pgm, img0002.pgm, etc., the name img%04d.pgm must be used on the command line.
+2. If the input data (microscope image sequence) is available in 12-bit (16-bit formatted) grayscale ICS format, it may be left as-is. Otherwise, input data must be converted to a sequence of 'raw' PGM images (either 8-bit or 16-bit PGMs are accepted). To tell the program which files to use, the program accepts filenames in printf-style format. For example, if the filenames are img0001.pgm, img0002.pgm, etc., the name img%04d.pgm must be used on the command line.
 
 3. Make sure there exists a folder where the program can write output data to.
 
 4. Run the program, using the following arguments:
 
-$robie <filename.ics | filename<format>.pgm> <outline.svg> startframe endframe kappa <output-dir> <phase.txt> [-t] [low_conf_rm]
+$ robie <filename.ics | filename<format>.pgm> <outline.svg> startframe endframe kappa <output-dir> <phase.txt> [-t] [low_conf_rm]
 
 For basic use, phase.txt is not required and can be set to 'none'. So, given the example names specified in (1) and (2), a valid invocation would be:
 
-$robie img%04d.pgm outline.svg 10 100 0.02 robieoutput/ none -b
+$ robie img%04d.pgm outline.svg 10 100 0.02 robieoutput/ none -b
 
 This reads files img0010.pgm, img0011.pgm, ..., img0100.pgm, assuming outline.svg contains the outline for img0010.pgm, tracks the cell, and outputs a series of SVG files (for quick viewing) alongside a series of ascii human-readable outline files in the directory robieoutput/. 
 
