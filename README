@@ -47,8 +47,6 @@ The package is composed of several programs and several modules which are shared
 	
 'robie' is the main program; it accepts as input 1. a series of images (either as separate PGM files or a single ICS file) 2. initial outline for the cells we want to track 3. a kappa value, and outputs either a series of SVG images of the cell outlines or a series of text files describing the outline (in native format). Example usage of the program is given in the next section.
 
-To use the program, 
-
 'robie-present' is a utility program used to generate the figures seen in the paper. It takes the output of robie (text files + input images) and clips them to a specified rectangle and tiles them together in a single image.
 
 'extract2' is a utility program used to extract the individual images from an ICS file. This comes in handy when preparing images for the paper, as robie-present is not capable of reading ICS files. This program has many advanced features; however, none of them were used in the preparation of the paper. For the preparation of the paper, the images were extracted as raw 16-bit pgms.
