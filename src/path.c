@@ -514,7 +514,9 @@ int find_lowweight_run(point2d32f *path, float *perr, int n, int closed, point2d
 				jj = j % n;
 				ii = (j-inrun+1) % n;
 				
+#ifdef TEST_MODE
 				printf("ii:%d jj:%d\n", ii, jj);
+#endif
 				pi->x = 0.5*(path[ii].x + path[jj].x);
 				pi->y = 0.5*(path[ii].y + path[jj].y);
 				

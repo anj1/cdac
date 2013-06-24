@@ -223,7 +223,7 @@ int fit_path (float *img, int w, int h, float *sobx, float *soby, float *sobhist
 				free(path2);
 				path = path1;
 			}
-			
+
 			/* now actually deform the path */
 			snake_deform2_int(p->p,path->p,s->norml,path->extr,pathn,search_rad,1);
 			memcpy(path->phase, p->phase, sizeof(float)*pathn);

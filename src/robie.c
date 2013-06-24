@@ -646,7 +646,6 @@ int main(int argc, char **argv)
 		ndims=3;
 	}
 	
-	
 	/* number of frames specified */
 	/* we already got startframe above */
 	if(filetype == IMG_ICS){
@@ -694,28 +693,30 @@ int main(int argc, char **argv)
 	export_svg  = 1;
 	export_text = 0;
 	if(argc>=9){
-		argv[8][3]=0;	/* avoid buffer overruns */
-		if(strcmp("-t",argv[8])==0){
-			export_jpeg = 0;
-			export_svg  = 0;
-			export_text = 1;
-		}
-		if(strcmp("-b",argv[8])==0){
-			export_jpeg = 1;
-			export_svg  = 1;
-			export_text = 1;
-		}
-		if(strcmp("-s",argv[8])==0){
-			export_jpeg = 0;
-			export_svg  = 1;
-			export_text = 1;
+		if(strlen(argv[8])<=2){ /* avoid buffer overruns */
+			if(strcmp("-t",argv[8])==0){
+				export_jpeg = 0;
+				export_svg  = 0;
+				export_text = 1;
+			}
+			if(strcmp("-b",argv[8])==0){
+				export_jpeg = 1;
+				export_svg  = 1;
+				export_text = 1;
+			}
+			if(strcmp("-s",argv[8])==0){
+				export_jpeg = 0;
+				export_svg  = 1;
+				export_text = 1;
+			}
 		}
 	}
-	
+
 	/* get whether low-confidence line segments should be removed */
 	low_conf_rm = 0;
+	
 	if(argc==10){
-		low_conf_rm = strcmp("yes",argv[8]) == 0 ? 1 : 0;
+		low_conf_rm = strcmp("yes",argv[9]) == 0 ? 1 : 0;
 	}
 	
 	/* load areas to be ignored */
