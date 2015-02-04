@@ -52,6 +52,11 @@ int main(int argc, char **argv)
 	}
 	idx=i;
 
+	if (idx==nc){
+		fprintf(stderr,"Couldn't find cell %s\n", id);
+		return 3;
+	}
+
 	for(i=0;i<c[idx].n[0];i++){
 		if(horiz){
 			printf("%f,%f;%f ",c[idx].p[0][i].x,c[idx].p[0][i].y,c[idx].phase[0][i]);

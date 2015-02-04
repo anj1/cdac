@@ -4,7 +4,7 @@
 #define MAX_PATHN  1024
 #define MAX_PATHS 16
 /* for 10_0000, use 16 */ 
-#define MAX_SEARCH_RAD 10		/* should be 10 for agreement with paper */
+#define MAX_SEARCH_RAD 16		/* should be 10 for agreement with paper */
 
 #define MAX_IGNORE_REGION 8
 
